@@ -1,0 +1,17 @@
+FUNCNAME ?= $(notdir $(CURDIR))
+REGION ?= "us-west-2"
+PROFILE ?= "default"
+include $(CURDIR)/.config
+
+all: clean pip zip upload
+
+pip:
+    pip2.7 install -r requirements.txt -t $(CURDIR) --upgrade
+zip:
+    zip -r -x@exclude.lst lambda.zip *
+clean:
+    rm lambda.zip 
+upload:
+    cd ../; aws lambda update-function-code --function-name $(FUNCNAME) --zip-file fileb://$(CURDIR)/lambda.zip --region $(REGION) --profile $(PROFILE)
+test:
+    cd ../; aws lambda invoke --function-name $(FUNCNAME) --region $(REGION) --profile $(PROFILE) $(FUNCNAME).log

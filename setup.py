@@ -38,7 +38,7 @@ setup(
     ],
     keywords='aws lambda',
     packages=find_packages(),
-    install_requires=['ConfigParser', 'pyforce'],
+    install_requires=['ConfigParser'],
     extras_require={},
     package_data={},
     data_files=[],

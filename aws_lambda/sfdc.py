@@ -22,7 +22,8 @@ def flatten(d, parent_key='', sep='.'):
                 n_k = k.rstrip('__r')
             n_d[n_k] = flatten(v)
         return n_d
-    elif isinstance(d, (str,unicode)):
+    else:
+        print(type(d))
         return d
     return d
 

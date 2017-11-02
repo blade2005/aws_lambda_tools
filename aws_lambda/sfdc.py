@@ -23,7 +23,6 @@ def flatten(d, parent_key='', sep='.'):
             n_d[n_k] = flatten(v)
         return n_d
     else:
-        print(type(d))
         return d
     return d
 

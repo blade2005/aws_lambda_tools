@@ -35,8 +35,31 @@ def get_config(section, config_path='lambda.cfg'):
             'Missing section(%s) in configfile(%s)', section, config_path)
 
 def generate_return(status, data):
+    return generate_response(status, data)
+
+def generate_response(status, data, headers={'Content-Type': 'application/json'}):
     return {
-        "statusCode": status, 'headers': {'Content-Type': 'application/json'},
+        "statusCode": status, 'headers': headers,
         "body": json.dumps(data, cls=PythonObjectEncoder, sort_keys=True),
     }
 
+def true_bool(dct):
+    logging.info('Found obj of type: %s', type(dct))
+    if isinstance(dct, dict):
+        for key, value in dct.items():
+            dct[key] = true_bool(value)
+    elif isinstance(dct, tuple):
+        dct = ([true_bool(val) for val in dct])
+    elif isinstance(dct, list):
+        dct = [true_bool(val) for val in dct]
+    elif isinstance(dct, (str, unicode)):
+        logging.info('Found obj of value: %s', dct)
+        if 'true' == dct:
+            dct = True
+        elif 'false' == dct:
+            dct = False
+    return dct
+
+
+def decode_json(json_data):
+    return json.loads(json_data, object_hook=true_bool)

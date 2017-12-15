@@ -1,3 +1,5 @@
+import boto3
+
 class DynamoDB(object):
     """DynamoDB."""
 

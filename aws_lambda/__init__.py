@@ -15,10 +15,14 @@ def encrypted_get_config(api_stage):
     import functools
     ddb = dynamodb.DynamoDB()
     encrypted_config = ddb.get('Configs', 'name', api_stage)
-    config_path = '/tmp/{}-config'.format(api_stage)
-    with open(config_path, 'w') as outfile:
-        outfile.write(decrypt(encrypted_config))
-    return functools.partial(get_config, config_path=config_path)
+    if encrypted_config:
+        config_path = '/tmp/{}-config'.format(api_stage)
+        with open(config_path, 'w') as outfile:
+            decrypted_config = decrypt(encrypted_config['data'])
+            outfile.write(decrypted_config)
+        return functools.partial(get_config, config_path=config_path)
+    else:
+        raise Exception('Missing Config')
 
 class PythonObjectEncoder(JSONEncoder):
     def default(self, obj):

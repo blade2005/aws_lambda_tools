@@ -6,9 +6,19 @@ import datetime
 import ConfigParser
 from base64 import b64decode
 import boto3
+from . import dynamodb
 
 def decrypt(blob):
     return boto3.client('kms').decrypt(CiphertextBlob=b64decode(blob))['Plaintext'].decode('UTF-8')
+
+def encrypted_get_config(api_stage):
+    import functools
+    ddb = dynamodb.DynamoDB()
+    encrypted_config = ddb.get('Configs', 'name', api_stage)
+    config_path = '/tmp/{}-config'.format(api_stage)
+    with open(config_path, 'w') as outfile:
+        outfile.write(decrypt(encrypted_config))
+    return functools.partial(get_config, config_path=config_path)
 
 class PythonObjectEncoder(JSONEncoder):
     def default(self, obj):

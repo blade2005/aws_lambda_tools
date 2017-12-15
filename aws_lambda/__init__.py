@@ -4,6 +4,11 @@ import json
 from json import JSONEncoder
 import datetime
 import ConfigParser
+from base64 import b64decode
+import boto3
+
+def decrypt(blob):
+    return boto3.client('kms').decrypt(CiphertextBlob=b64decode(blob))['Plaintext'].decode('UTF-8')
 
 class PythonObjectEncoder(JSONEncoder):
     def default(self, obj):
@@ -37,7 +42,11 @@ def get_config(section, config_path='lambda.cfg'):
 def generate_return(status, data):
     return generate_response(status, data)
 
-def generate_response(status, data, headers={'Content-Type': 'application/json'}):
+RESPONSE_DEFAULT_HEADERS = {'Content-Type': 'application/json'}
+
+def generate_response(status, data, headers=None):
+    if not headers:
+        headers = RESPONSE_DEFAULT_HEADERS
     return {
         "statusCode": status, 'headers': headers,
         "body": json.dumps(data, cls=PythonObjectEncoder, sort_keys=True),
@@ -54,9 +63,9 @@ def true_bool(dct):
         dct = [true_bool(val) for val in dct]
     elif isinstance(dct, (str, unicode)):
         logging.info('Found obj of value: %s', dct)
-        if 'true' == dct:
+        if dct == 'true':
             dct = True
-        elif 'false' == dct:
+        elif dct == 'false':
             dct = False
     return dct
 

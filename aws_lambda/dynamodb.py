@@ -1,23 +1,13 @@
 class DynamoDB(object):
     """DynamoDB."""
 
-    def __init__(self, profile, region=None, client=False):
+    def __init__(self, client=False):
         """Init."""
-        self.profile = profile
-        self.region = region
-        session = None
-        if region:
-            session = boto3.Session(profile_name=profile, region_name=region)
-        else:
-            session = boto3.Session(profile_name=profile)
-
-        if not self.region:
-            self.region = session.region_name
-
         self.client = client
         if client:
-            self.dynamodb = session.client('dynamodb')
+            self.dynamodb = boto3.client('dynamodb')
         else:
+            session = boto3.Session()
             self.dynamodb = session.resource('dynamodb')
 
     def create_table(self, table, primary_key='Id', ):

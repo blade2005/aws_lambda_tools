@@ -8,6 +8,46 @@ from base64 import b64decode
 import boto3
 from . import dynamodb
 
+def _maketrans(frm, _to):
+    """Handle py2 ascii encoding."""
+    if six.PY2:
+        ord_map = dict([(ord(f), ord(t)) for f, t in zip(frm, _to)])
+        ord_map[8482] = None
+        ord_map[174] = None
+        return ord_map
+    else:
+        return str.maketrans(frm, _to)  # pylint: disable=no-member
+
+
+def trans_text(text):
+    """Translate text into utf-8 characters."""
+    # Translation must be 1 char to 1 char, if needing to delete or multiple
+    #   character then modify _maketrans
+    trans_table = _maketrans(u'\u201c\u201d\u2019\u2013\u2022\u2122'
+                             u'\u00ad\u00ae\u2013',
+                             '""\'\'* - -')
+    if text is None:
+        return
+    e_text = t_text = u_text = None
+    try:
+        if isinstance(text, str) and six.PY2:
+            u_text = codecs.decode(text, 'utf_8')
+        elif six.PY3 and isinstance(text, bytes):
+            u_text = codecs.decode(text, 'utf_8')
+        else:
+            u_text = text
+        t_text = u_text.translate(trans_table)
+        e_text = codecs.encode(t_text, 'utf_8')
+        return e_text
+    except (UnicodeDecodeError, UnicodeEncodeError, TypeError) as error:
+        logging.critical(error)
+        logging.critical('trans_table: %s', trans_table)
+        logging.critical('text: "%s", type: %s', text, type(text))
+        logging.critical('u_text: "%s", type: %s', u_text, type(u_text))
+        logging.critical('t_text: "%s", type: %s', t_text, type(t_text))
+        raise
+
+
 def decrypt(blob):
     return boto3.client('kms').decrypt(CiphertextBlob=b64decode(blob))['Plaintext'].decode('UTF-8')
 

@@ -31,7 +31,9 @@ class PythonObjectEncoder(JSONEncoder):
         elif isinstance(obj, (list, dict, str, unicode, int, float, bool, type,
                               type(None))):
             return JSONEncoder.default(self, obj)
-        return {'_python_object': pickle.dumps(obj)}
+        else:
+            logging.warning('Unable to find matching encoder for type %s. Using pickle', str(type(obj)))
+            return {'_python_object': pickle.dumps(obj)}
 
 def get_config(section, config_path='lambda.cfg'):
     """Retrieve config section from file."""

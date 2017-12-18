@@ -67,7 +67,7 @@ def generate_response(status, data, headers=None):
     }
 
 def true_bool(dct):
-    logging.info('Found obj of type: %s', type(dct))
+    logging.debug('Found obj of type: %s', type(dct))
     if isinstance(dct, dict):
         for key, value in dct.items():
             dct[key] = true_bool(value)
@@ -76,7 +76,7 @@ def true_bool(dct):
     elif isinstance(dct, list):
         dct = [true_bool(val) for val in dct]
     elif isinstance(dct, (str, unicode)):
-        logging.info('Found obj of value: %s', dct)
+        logging.debug('Found obj of value: %s', dct)
         if dct == 'true':
             dct = True
         elif dct == 'false':

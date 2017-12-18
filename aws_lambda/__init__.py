@@ -5,6 +5,7 @@ from json import JSONEncoder
 import datetime
 import ConfigParser
 from base64 import b64decode
+import six
 import boto3
 from . import dynamodb
 

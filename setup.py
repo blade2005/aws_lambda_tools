@@ -38,7 +38,7 @@ setup(
     ],
     keywords='aws lambda',
     packages=find_packages(),
-    install_requires=['ConfigParser'],
+    install_requires=['ConfigParser', 'six'],
     extras_require={},
     package_data={},
     data_files=[],

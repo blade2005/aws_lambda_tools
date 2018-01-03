@@ -4,7 +4,7 @@ import pickle
 import json
 from json import JSONEncoder
 import datetime
-import ConfigParser
+from six.moves import configparser
 from base64 import b64decode
 import six
 import boto3
@@ -79,12 +79,12 @@ class PythonObjectEncoder(JSONEncoder):
 
 def get_config(section, config_path='lambda.cfg'):
     """Retrieve config section from file."""
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.read(config_path)
     if config.has_section(section):
         cfg = dict(config.items(section))
         newcfg = {}
-        for key, value in cfg.items():
+        for key, value in list(cfg.items()):
             if isinstance(value, (unicode, str)):
                 if value.isdigit():
                     newcfg[key] = int(value)
@@ -112,13 +112,13 @@ def generate_response(status, data, headers=None):
 
 def true_bool(dct):
     if isinstance(dct, dict):
-        for key, value in dct.items():
+        for key, value in list(dct.items()):
             dct[key] = true_bool(value)
     elif isinstance(dct, tuple):
         dct = ([true_bool(val) for val in dct])
     elif isinstance(dct, list):
         dct = [true_bool(val) for val in dct]
-    elif isinstance(dct, (str, unicode)):
+    elif isinstance(dct, (unicode, str)):
         if dct == 'true':
             dct = True
         elif dct == 'false':

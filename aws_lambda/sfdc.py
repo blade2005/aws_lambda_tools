@@ -14,9 +14,9 @@ def flatten(d, parent_key='', sep='.'):
         for r in d:
             n_d.append(flatten(r))
         return n_d
-    elif isinstance(d, (dict,)):
+    elif isinstance(d, dict):
         n_d = {}
-        for k, v in d.items():
+        for k, v in list(d.items()):
             n_k = k
             if k.endswith('__r'):
                 n_k = k.rstrip('__r')

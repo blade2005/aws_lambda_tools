@@ -21,26 +21,26 @@ def __prettify_custom_fields(ticket_info):
     return ticket_info
 
 def __clean_up_user_info(user):
-    for field in user.keys():
+    for field in list(user.keys()):
         if field in BLACKLISTED_FIELDS:
             del user[field]
             continue
         if isinstance(user[field], dict):
-            for k in user[field].keys():
+            for k in list(user[field].keys()):
                 if k in BLACKLISTED_FIELDS:
                     del user[field][k]
     return user
 
 def clean_up_user_info(user_info, singleton=True):
     removed_fields = ['count', 'next_page', 'previous_page']
-    if 'users' in user_info.keys() and isinstance(user_info['users'], list):
+    if 'users' in list(user_info.keys()) and isinstance(user_info['users'], list):
         if singleton:
             user_info['user'] = __clean_up_user_info(user_info['users'][0])
             removed_fields.append('users')
         else:
             user_info['users'] = [__clean_up_user_info(user) for user in user_info['users']]
     for k in removed_fields:
-        if k in user_info.keys():
+        if k in list(user_info.keys()):
             del user_info[k]
     return user_info
 
@@ -61,22 +61,22 @@ def __create_ticket_data(json_input, ticket):
     """Returns dictionary of data using when posting to ZenDesk to creating a ticket."""
 
     fields_copied_from_input = ['ticket_form_id', 'brand_id', 'group_id', 'description', 'subject']
-    if 'template_name' in json_input.keys():
+    if 'template_name' in list(json_input.keys()):
         logging.info('Formatting for %s template', json_input['template_name'])
         ticket['comment'] = {'body': __render_ticket_body(json_input['template_name'], json_input)}
-        if json_input['template_name'] in TEMPLATE_SUBJECTS.keys():
+        if json_input['template_name'] in list(TEMPLATE_SUBJECTS.keys()):
             fields_copied_from_input.remove('subject')
             ticket['subject'] = TEMPLATE_SUBJECTS[json_input['template_name']].format(**json_input)
     else:
         fields_copied_from_input.append('comment')
 
     for field in fields_copied_from_input:
-        if field in json_input.keys():
+        if field in list(json_input.keys()):
             ticket[field] = json_input[field]
 
-    if 'prettified_custom_fields' in json_input.keys():
+    if 'prettified_custom_fields' in list(json_input.keys()):
         ticket['custom_fields'] = []
-        for title, value in json_input['prettified_custom_fields'].items():
+        for title, value in list(json_input['prettified_custom_fields'].items()):
             field_id = TICKET_FIELDS[title]['id']
             ticket['custom_fields'].append({'id': field_id, 'value': value})
 
@@ -117,7 +117,7 @@ class ZenDesk(object):
 
     def __add_names_for_ids(self, ticket_info):
         for field in ['author_id', 'submitter_id', 'assignee_id']:
-            if field in ticket_info['ticket'].keys() and ticket_info['ticket'][field]:
+            if field in list(ticket_info['ticket'].keys()) and ticket_info['ticket'][field]:
                 ticket_info['ticket'][field.replace('_id', '')] = self.user_name_lookup(
                     ticket_info['ticket'][field])
         return ticket_info
@@ -127,7 +127,7 @@ class ZenDesk(object):
         ticket_info = self.__add_names_for_ids(ticket_info)
         # ticket_info = __prettify_custom_fields(ticket_info)
         for key in ['custom_fields', 'fields']:
-            if key in ticket_info['ticket'].keys() and ticket_info['ticket'][key]:
+            if key in list(ticket_info['ticket'].keys()) and ticket_info['ticket'][key]:
                 ticket_info['ticket'][key] = __convert_fields_to_dict(ticket_info['ticket'][key])
             else:
                 logging.info('unable to find %s', key)

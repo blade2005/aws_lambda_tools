@@ -102,7 +102,7 @@ class DynamoDB(object):
     def get(self, table, key, value):
         """Get doc from specific keys"""
         resp = self.table(table).get_item(Key={key: value})
-        if resp and isinstance(resp, dict) and 'Item' in resp.keys():
+        if resp and isinstance(resp, dict) and 'Item' in list(resp.keys()):
             return resp['Item']
 
     def scan(self, table, lastevaluatedkey=None):

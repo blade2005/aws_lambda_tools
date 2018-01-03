@@ -53,14 +53,14 @@ def trans_text(text):
 def decrypt(blob):
     return boto3.client('kms').decrypt(CiphertextBlob=b64decode(blob))['Plaintext'].decode('UTF-8')
 
-def encrypted_get_config(api_stage):
+def encrypted_get_config(api_stage, table_name='Configs', table_key='name', conf_key='conf'):
     import functools
     ddb = dynamodb.DynamoDB()
-    encrypted_config = ddb.get('Configs', 'name', api_stage)
+    encrypted_config = ddb.get(table_name, table_key, api_stage)
     if encrypted_config:
         config_path = '/tmp/{}-config'.format(api_stage)
         with open(config_path, 'w') as outfile:
-            decrypted_config = decrypt(encrypted_config['data'])
+            decrypted_config = decrypt(encrypted_config[conf_key])
             outfile.write(decrypted_config)
         return functools.partial(get_config, config_path=config_path)
     else:

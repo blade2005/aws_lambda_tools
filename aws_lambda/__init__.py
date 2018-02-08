@@ -53,6 +53,12 @@ def trans_text(text):
 def decrypt(blob):
     return boto3.client('kms').decrypt(CiphertextBlob=b64decode(blob))['Plaintext'].decode('UTF-8')
 
+def ssm_get_config(ssm, parent_path, section):
+    param_path = '/config/{}/{}'.format(parent_path, section)
+    resp = client.get_parameter(Name=param_path, WithDecryption=True)
+    return json.loads(resp['Parameter']['Value'])
+
+
 def encrypted_get_config(api_stage, table_name='Configs', table_key='name', conf_key='conf'):
     import functools
     ddb = dynamodb.DynamoDB()

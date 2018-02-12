@@ -55,7 +55,7 @@ def decrypt(blob):
 
 def ssm_get_config(ssm, parent_path, section):
     param_path = '/config/{}/{}'.format(parent_path, section)
-    resp = client.get_parameter(Name=param_path, WithDecryption=True)
+    resp = ssm.get_parameter(Name=param_path, WithDecryption=True)
     return json.loads(resp['Parameter']['Value'])
 
 

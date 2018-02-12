@@ -4,8 +4,9 @@ import pickle
 import json
 from json import JSONEncoder
 import datetime
-from six.moves import configparser
 from base64 import b64decode
+import six
+from six.moves import configparser
 import six
 import boto3
 from . import dynamodb
@@ -134,3 +135,26 @@ def true_bool(dct):
 
 def decode_json(json_data):
     return json.loads(json_data, object_hook=true_bool)
+
+def recode_str(string__):
+    """Re-encode string if possible to unicode."""
+    if string__ and six.PY3:
+        return string__.encode('utf-8').decode('utf-8')
+    elif (string__ and
+          ((six.PY2 and
+            hasattr(string__, 'encode')) or
+           hasattr(string__, 'encode'))):
+        try:
+            return string__.encode('utf-8')
+        except (UnicodeEncodeError, UnicodeDecodeError) as error:
+            logging.critical(error)
+            logging.info(string__)
+    else:
+        return string__
+
+
+def recode_dict(dict__):
+    """Re-encode dictionary values if possible to unicode."""
+    for key, value in dict__.items():
+        dict__[key] = recode_str(value)
+    return dict__

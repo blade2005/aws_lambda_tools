@@ -126,9 +126,9 @@ def true_bool(dct):
     elif isinstance(dct, list):
         dct = [true_bool(val) for val in dct]
     elif isinstance(dct, (unicode, str)):
-        if dct == 'true':
+        if dct.lower() == 'true':
             dct = True
-        elif dct == 'false':
+        elif dct.lower() == 'false':
             dct = False
     return dct
 

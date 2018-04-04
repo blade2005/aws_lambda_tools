@@ -60,7 +60,7 @@ def ssm_get_config(ssm, parent_path, section):
     return json.loads(resp['Parameter']['Value'])
 
 def ssm_get(ssm, path):
-    resp = ssm.get_parameter(Name=param_path, WithDecryption=True)
+    resp = ssm.get_parameter(Name=path, WithDecryption=True)
     return resp['Parameter']['Value']
 
 def encrypted_get_config(api_stage, table_name='Configs', table_key='name', conf_key='conf'):

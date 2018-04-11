@@ -1,5 +1,6 @@
 import collections
 import pyforce
+from urlparse import urlparse
 
 def init_sf(url, username, password, token):
     """Connect to Salesforce"""
@@ -38,3 +39,7 @@ def execute_query(conn, query):
         done = results['done']
         records.extend([flatten(r) for r in results['records']])
     return records
+
+def get_sfdc_instance_name(conn):
+    (scheme, host, path, params, query, frag) = urlparse(conn._Client__serverUrl)
+    return '{}://{}'.format(scheme, host)

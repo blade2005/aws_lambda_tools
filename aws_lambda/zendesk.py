@@ -1,6 +1,5 @@
 import json
 import logging
-from jinja2 import Environment, FileSystemLoader, select_autoescape
 import zdesk
 import aws_lambda
 
@@ -43,44 +42,6 @@ def clean_up_user_info(user_info, singleton=True):
         if k in list(user_info.keys()):
             del user_info[k]
     return user_info
-
-def __jinja_env():
-    return Environment(
-        loader=FileSystemLoader('templates'),
-        autoescape=select_autoescape(['html', 'xml'])
-    )
-
-def __render_ticket_body(template_name, json_input):
-    env = __jinja_env()
-    template = env.get_template(template_name)
-    json_input['json'] = json.dumps(json_input, indent=2, cls=aws_lambda.PythonObjectEncoder)
-    return template.render(**json_input)
-
-
-def __create_ticket_data(json_input, ticket):
-    """Returns dictionary of data using when posting to ZenDesk to creating a ticket."""
-
-    fields_copied_from_input = ['ticket_form_id', 'brand_id', 'group_id', 'description', 'subject']
-    if 'template_name' in list(json_input.keys()):
-        logging.info('Formatting for %s template', json_input['template_name'])
-        ticket['comment'] = {'body': __render_ticket_body(json_input['template_name'], json_input)}
-        if json_input['template_name'] in list(TEMPLATE_SUBJECTS.keys()):
-            fields_copied_from_input.remove('subject')
-            ticket['subject'] = TEMPLATE_SUBJECTS[json_input['template_name']].format(**json_input)
-    else:
-        fields_copied_from_input.append('comment')
-
-    for field in fields_copied_from_input:
-        if field in list(json_input.keys()):
-            ticket[field] = json_input[field]
-
-    if 'prettified_custom_fields' in list(json_input.keys()):
-        ticket['custom_fields'] = []
-        for title, value in list(json_input['prettified_custom_fields'].items()):
-            field_id = TICKET_FIELDS[title]['id']
-            ticket['custom_fields'].append({'id': field_id, 'value': value})
-
-    return {'ticket': ticket}
 
 TICKET_FIELDS = None
 

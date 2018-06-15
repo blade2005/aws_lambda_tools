@@ -1,5 +1,6 @@
 import csv
-
+from cStringIO import StringIO
+import codecs
 
 class UnicodeDictWriter(object):
     """
@@ -11,11 +12,11 @@ class UnicodeDictWriter(object):
         self,
         csvfile,
         fieldnames,
+        *args,
         restval="",
         extrasaction="raise",
         dialect=csv.excel,
         encoding="utf-8",
-        *args,
         **kwds
     ):
         # Redirect output to a queue
@@ -48,8 +49,7 @@ class UnicodeDictWriter(object):
     def _encoder(self, data):
         if hasattr(data, "encode"):
             return data.encode("utf-8")
-        else:
-            return data
+        return data
 
     def writerow(self, rowdict):
         row = self._dict_to_list(rowdict)

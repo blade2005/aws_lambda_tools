@@ -12,11 +12,11 @@ class UnicodeDictWriter(object):
         self,
         csvfile,
         fieldnames,
-        *args,
         restval="",
         extrasaction="raise",
         dialect=csv.excel,
         encoding="utf-8",
+        *args,
         **kwds
     ):
         # Redirect output to a queue

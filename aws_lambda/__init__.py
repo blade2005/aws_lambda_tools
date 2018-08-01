@@ -1,3 +1,4 @@
+import os
 import logging
 import codecs
 import pickle
@@ -153,7 +154,12 @@ def true_bool(dct):
         dct = [true_bool(val) for val in dct]
     elif isinstance(dct, list):
         dct = [true_bool(val) for val in dct]
-    elif isinstance(dct, (unicode, str)):
+    elif sys.version_info[0] >= 3 and isinstance(dct, str):
+        if dct.lower() == "true":
+            dct = True
+        elif dct.lower() == "false":
+            dct = False
+    elif sys.version_info[0] < 3 and isinstance(dct, (unicode, str)):
         if dct.lower() == "true":
             dct = True
         elif dct.lower() == "false":

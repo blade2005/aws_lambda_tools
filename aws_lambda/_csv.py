@@ -1,5 +1,9 @@
 import csv
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
+
 import codecs
 
 class UnicodeDictWriter(object):
